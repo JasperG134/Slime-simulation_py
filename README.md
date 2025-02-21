@@ -20,16 +20,16 @@ A **GPU-accelerated slime simulation** in Python, inspired by Seb Lague's slime 
 Below are example outputs corresponding to some of the presets. (You can place your own images in an `images/` folder and reference them here.)
 
 ### "Racers" Fast moving - small groups Pattern (Preset #1)
-![Cell-Like Bubble Pattern](images/preset1.png)
+![Cell-Like Bubble Pattern](slime_Sim/images/preset1.png)
 
 ### White Net (Preset #2)
-![Blue Net Pattern](images/preset2.png)
+![Blue Net Pattern](slime_Sim/images/preset2.png)
 
 ### Green Lumps (Preset #3)
-![Green Lumps](images/preset3.png)
+![Green Lumps](slime_Sim/images/preset3.png)
 
 ### "The Matrix" small lines without much turning (Preset #4)
-![Wrinkled Lines](images/preset4.png)
+![Wrinkled Lines](slime_Sim/images/preset4.png)
 
 > For more examples, see the additional presets (#5–#10) or experiment with your own configurations.
 
