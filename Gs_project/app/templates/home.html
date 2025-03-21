@@ -3,14 +3,17 @@
 {% block extra_head %}
 <style>
     .hero-section {
-        background: linear-gradient(135deg, #0d6efd, #6610f2);
-        color: white;
-        padding: 60px 0;
-        border-radius: 10px;
-        margin-bottom: 30px;
-        position: relative;
-        overflow: hidden;
+    background: url("{{ url_for('static', filename='images/background.jpg') }}");
+    background-size: cover;
+    background-position: center;
+    color: white;
+    padding: 60px 0;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
     }
+
 
     .hero-section h1 {
         color: white;
@@ -111,6 +114,7 @@
                     Je voert eenvoudig interviewdata, vragen en bronnen in. Vervolgens gebruikt de site een slimme AI
                     om van al die input een mooi en samenhangend verslag te maken. Met Python aan de achterkant en een
                     interactieve React/Three.js frontend, wordt jouw familieverhaal op een leuke en moderne manier gepresenteerd.
+                    Door Jasper Groen 3D
                 </p>
             </div>
         </div>
@@ -136,7 +140,7 @@
                     <i class="fas fa-brain"></i>
                 </div>
                 <h3>AI Verwerking</h3>
-                <p>Onze slimme AI verwerkt al je gegevens en creëert een samenhangend verhaal van je familiegeschiedenis.</p>
+                <p>De slimme AI verwerkt al je gegevens en creëert een samenhangend verhaal van je familiegeschiedenis.</p>
             </div>
         </div>
     </div>

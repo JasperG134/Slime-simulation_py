@@ -7,9 +7,12 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENV FLASK_APP=run.py
+# Stel omgevingsvariabelen in
+ENV FLASK_APP=app.py
 ENV FLASK_ENV=production
 
-EXPOSE 5000
+# Hugging Face Spaces gebruikt poort 7860
+EXPOSE 7860
 
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "run:app"]
+# Gebruik app.py voor Hugging Face
+CMD ["gunicorn", "--bind", "0.0.0.0:7860", "app:app"]
