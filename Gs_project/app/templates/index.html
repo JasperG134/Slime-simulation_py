@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <h1 class="mb-4">Welkom bij het Familiestamboom Onderzoeksproject</h1>
+        <p class="lead">
+            Vul het onderstaande formulier in om een onderzoeksverslag te genereren over uw familiegeschiedenis.
+            Het systeem zal automatisch een verslag maken op basis van de door u verstrekte informatie.
+        </p>
+    </div>
+</div>
+
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="post" action="{{ url_for('generate_report') }}" enctype="multipart/form-data">
+            <div class="mb-3">
+                <h3>Onderzoeksvraag</h3>
+                <label for="onderzoeksvraag" class="form-label">Wat is uw hoofdonderzoeksvraag?</label>
+                <input type="text" class="form-control" id="onderzoeksvraag" name="onderzoeksvraag" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="deelvragen" class="form-label">Deelvragen (één per regel)</label>
+                <textarea class="form-control" id="deelvragen" name="deelvragen" rows="3"></textarea>
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+                <h3>Interviews</h3>
+                <label for="interviews" class="form-label">Geef een samenvatting van de interviews die u heeft afgenomen.</label>
+                <textarea class="form-control" id="interviews" name="interviews" rows="5"></textarea>
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+                <h3>Bronnen en Referenties</h3>
+                <label for="bronnen" class="form-label">Welke bronnen heeft u gebruikt? (websites, archieven, etc.)</label>
+                <textarea class="form-control" id="bronnen" name="bronnen" rows="3"></textarea>
+            </div>
+
+            <div class="mb-3">
+                <label for="documenten" class="form-label">Welke documenten en boeken heeft u geraadpleegd?</label>
+                <textarea class="form-control" id="documenten" name="documenten" rows="3"></textarea>
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+                <h3>Afbeeldingen</h3>
+                <label for="images" class="form-label">Upload relevante afbeeldingen (foto's, documenten, etc.)</label>
+                <input class="form-control" type="file" id="images" name="images" multiple accept="image/*">
+                <div class="form-text">U kunt meerdere bestanden selecteren. Toegestane formaten: JPG, PNG, GIF.</div>
+            </div>
+
+            <hr>
+
+            <div class="mb-3">
+                <h3>Extra Informatie</h3>
+                <label for="notities" class="form-label">Aanvullende notities of informatie</label>
+                <textarea class="form-control" id="notities" name="notities" rows="3"></textarea>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-primary btn-lg">Genereer Verslag</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
