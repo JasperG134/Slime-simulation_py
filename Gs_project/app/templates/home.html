@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block extra_head %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, #0d6efd, #6610f2);
+        color: white;
+        padding: 60px 0;
+        border-radius: 10px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .hero-section h1 {
+        color: white;
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+    }
+
+    .hero-section p {
+        font-size: 1.1rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .feature-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 10px;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        color: #0d6efd;
+    }
+
+    .floating {
+        animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0% {
+            transform: translateY(0px);
+        }
+        50% {
+            transform: translateY(-20px);
+        }
+        100% {
+            transform: translateY(0px);
+        }
+    }
+
+    .family-tree-animation {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 0;
+        opacity: 0.1;
+    }
+
+    .content-wrapper {
+        position: relative;
+        z-index: 1;
+    }
+
+    .circle {
+        position: absolute;
+        border-radius: 50%;
+        background: white;
+        opacity: 0.1;
+    }
+
+    .login-section {
+        background-color: #f8f9fa;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="hero-section">
+    <div class="family-tree-animation" id="animation-container"></div>
+    <div class="content-wrapper text-center">
+        <div class="floating">
+            <i class="fas fa-book-open mb-3" style="font-size: 3rem;"></i>
+        </div>
+        <h1>Welkom bij het GS-Project</h1>
+        <p class="lead">Ontdek en bewaar jouw familiegeschiedenis op een moderne manier</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow">
+            <div class="card-body p-5">
+                <p class="lead text-center">
+                    Welkom bij mijn GS-project! Deze mini-website brengt jouw familiegeschiedenis tot leven.
+                    Je voert eenvoudig interviewdata, vragen en bronnen in. Vervolgens gebruikt de site een slimme AI
+                    om van al die input een mooi en samenhangend verslag te maken. Met Python aan de achterkant en een
+                    interactieve React/Three.js frontend, wordt jouw familieverhaal op een leuke en moderne manier gepresenteerd.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-4">
+        <div class="card feature-card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-comments"></i>
+                </div>
+                <h3>Invoer</h3>
+                <p>Voeg je interviews, onderzoeksvragen en bronmateriaal toe in een gebruiksvriendelijk formulier.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card feature-card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <h3>AI Verwerking</h3>
+                <p>Onze slimme AI verwerkt al je gegevens en creëert een samenhangend verhaal van je familiegeschiedenis.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card feature-card h-100">
+            <div class="card-body text-center">
+                <div class="feature-icon">
+                    <i class="fas fa-file-alt"></i>
+                </div>
+                <h3>Resultaat</h3>
+                <p>Ontvang een professioneel document en een interactieve stamboom visualisatie van je familiegeschiedenis.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-6 offset-lg-3">
+        <div class="login-section text-center">
+            <h2>Aan de slag</h2>
+            <p>Log in om je eigen familiegeschiedenis te ontdekken en vast te leggen.</p>
+            {% if not session.is_authenticated %}
+            <a href="{{ url_for('login') }}" class="btn btn-primary btn-lg">Inloggen</a>
+            {% else %}
+            <a href="{{ url_for('index') }}" class="btn btn-success btn-lg">Naar dashboard</a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Animatie voor de achtergrond
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('animation-container');
+
+        // Creëer willekeurige cirkels voor de animatie
+        for (let i = 0; i < 15; i++) {
+            createRandomCircle(container);
+        }
+
+        // Voeg lijn-animatie toe
+        createFamilyTreeLines(container);
+    });
+
+    function createRandomCircle(container) {
+        const circle = document.createElement('div');
+        circle.classList.add('circle');
+
+        const size = Math.random() * 100 + 50;
+        const posX = Math.random() * 100;
+        const posY = Math.random() * 100;
+
+        circle.style.width = `${size}px`;
+        circle.style.height = `${size}px`;
+        circle.style.left = `${posX}%`;
+        circle.style.top = `${posY}%`;
+
+        container.appendChild(circle);
+
+        // Animeer de cirkels
+        animateCircle(circle);
+    }
+
+    function animateCircle(circle) {
+        const duration = Math.random() * 10000 + 5000;
+        const startX = parseFloat(circle.style.left);
+        const startY = parseFloat(circle.style.top);
+        const targetX = startX + (Math.random() * 20 - 10);
+        const targetY = startY + (Math.random() * 20 - 10);
+
+        let startTime;
+
+        function animate(currentTime) {
+            if (!startTime) startTime = currentTime;
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+
+            const easeProgress = 0.5 - Math.cos(progress * Math.PI) / 2;
+
+            const currentX = startX + (targetX - startX) * easeProgress;
+            const currentY = startY + (targetY - startY) * easeProgress;
+
+            circle.style.left = `${currentX}%`;
+            circle.style.top = `${currentY}%`;
+
+            if (progress < 1) {
+                requestAnimationFrame(animate);
+            } else {
+                // Opnieuw animeren in de andere richting
+                animateCircle(circle);
+            }
+        }
+
+        requestAnimationFrame(animate);
+    }
+
+    function createFamilyTreeLines(container) {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute('width', '100%');
+        svg.setAttribute('height', '100%');
+        svg.style.position = 'absolute';
+        svg.style.top = '0';
+        svg.style.left = '0';
+        svg.style.opacity = '0.2';
+
+        // Maak een simpele stamboom structuur
+        const lines = [
+            {x1: '50%', y1: '20%', x2: '50%', y2: '40%'},
+            {x1: '50%', y1: '40%', x2: '30%', y2: '60%'},
+            {x1: '50%', y1: '40%', x2: '70%', y2: '60%'},
+            {x1: '30%', y1: '60%', x2: '20%', y2: '80%'},
+            {x1: '30%', y1: '60%', x2: '40%', y2: '80%'},
+            {x1: '70%', y1: '60%', x2: '60%', y2: '80%'},
+            {x1: '70%', y1: '60%', x2: '80%', y2: '80%'}
+        ];
+
+        lines.forEach(coords => {
+            const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+            line.setAttribute('x1', coords.x1);
+            line.setAttribute('y1', coords.y1);
+            line.setAttribute('x2', coords.x2);
+            line.setAttribute('y2', coords.y2);
+            line.setAttribute('stroke', 'white');
+            line.setAttribute('stroke-width', '2');
+
+            svg.appendChild(line);
+
+            // Voeg een animatie toe voor de lijnen
+            animateLine(line);
+        });
+
+        container.appendChild(svg);
+    }
+
+    function animateLine(line) {
+        let length = line.getTotalLength();
+        if (!length) length = 100; // Fallback indien getTotalLength niet werkt
+
+        line.style.strokeDasharray = length;
+        line.style.strokeDashoffset = length;
+
+        line.animate(
+            [
+                { strokeDashoffset: length },
+                { strokeDashoffset: 0 }
+            ],
+            {
+                duration: 2000,
+                fill: 'forwards',
+                easing: 'ease-in-out'
+            }
+        );
+    }
+</script>
+{% endblock %}

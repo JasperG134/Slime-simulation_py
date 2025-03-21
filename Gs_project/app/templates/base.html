@@ -11,7 +11,7 @@
 <body>
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
     <div class="container">
-        <a class="navbar-brand" href="{{ url_for('index') }}">Familiestamboom Onderzoek</a>
+        <a class="navbar-brand" href="{{ url_for('home') }}">Familiestamboom Onderzoek</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -19,12 +19,18 @@
             <ul class="navbar-nav ms-auto">
                 {% if session.is_authenticated %}
                 <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Home</a>
+                    <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">Dashboard</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('logout_route') }}">Uitloggen</a>
                 </li>
                 {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('home') }}">Home</a>
+                </li>
                 <li class="nav-item">
                     <a class="nav-link" href="{{ url_for('login') }}">Inloggen</a>
                 </li>

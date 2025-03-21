@@ -15,11 +15,8 @@ def allowed_file(filename):
 
 
 @app.route('/')
-def index():
-    if session.get('is_authenticated'):
-        return render_template('index.html')
-    else:
-        return redirect(url_for('login'))
+def home():
+    return render_template('home.html')
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -41,7 +38,7 @@ def login():
 def logout_route():
     logout()
     flash('U bent uitgelogd.', 'info')
-    return redirect(url_for('login'))
+    return redirect(url_for('home'))
 
 
 @app.route('/generate', methods=['POST'])
@@ -68,7 +65,8 @@ def generate_report():
                 image.save(file_path)
                 uploaded_images.append(file_path)
 
-    # There is no money on this account only used for the free model. so no use in stealing it ;).
+    # There is no money on this account, only used for the free model. so no use in stealing it ;).
+    # also this key will be removed from my account after 21/03/2025 european notation.
     api_key = "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"
 
     # Verslag genereren
@@ -115,3 +113,9 @@ def download_file(filename):
 def get_family_tree_data():
     data = session.get('family_tree_data')
     return jsonify(data)
+
+
+@app.route('/dashboard')
+@login_required
+def index():
+    return render_template('index.html')
