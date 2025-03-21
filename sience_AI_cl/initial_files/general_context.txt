@@ -1,0 +1,32 @@
+# General Context and Constraints for Vitamin B12 Synthesis Optimization
+
+Vitamin B12, also known as cobalamin, is a water-soluble vitamin essential for DNA synthesis, nervous system function, red blood cell formation, and amino acid metabolism.
+
+## Current State:
+- Synthetic pathway: 22 chemical reactions.
+- Current total yield: 0.05%.
+
+## Molecular Constraints:
+- Initial constraint: prefer smaller molecules with up to 3 carbon atoms, but exceptions permitted if chemically beneficial or justified.
+
+## Chemical Evaluation Criteria:
+You will iteratively evaluate each pathway on:
+- **Chemical Feasibility** (reaction validity, intermediate stability, product formation)
+- **Estimated Yield** (stepwise and cumulative)
+- **Reaction Conditions** (solvents, temperature, pressure, reagents, catalysts)
+- **Complexity** (difficulty of reaction setup, expertise needed, purification)
+- **Cost and Resource Requirements** (economic analysis, reagent availability)
+- **Time Efficiency** (reaction duration per step, total duration)
+
+## Evaluation Priorities (highest to lowest):
+1. Yield improvement
+2. Reduction of reaction steps
+3. Complexity & resource minimization
+4. Cost efficiency
+5. Time efficiency
+6. Environmental/Safety considerations (lowest priority)
+
+## Interaction:
+Clearly request additional scientific resources whenever you need them. Use structured syntax to issue resource requests. The provided files and resources will be managed and indexed automatically.
+
+Continuously update your progress in the AI_progress_tracker.txt.

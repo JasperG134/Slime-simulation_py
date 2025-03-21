@@ -1,2 +1,4 @@
 .venv/
 venv/
+/sience_AI_cl/
+.env

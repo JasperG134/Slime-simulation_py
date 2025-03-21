@@ -16,7 +16,7 @@ Presets #1..#4 attempt to roughly replicate those 'bubble/cell', 'blue net',
 interesting variants.
 """
 
-CURRENT_PRESET = 4 # Choose any from 1..10
+CURRENT_PRESET = 1 # Choose any from 1..10
 
 # We'll store all presets in a dictionary of dictionaries:
 ALL_PRESETS = {
@@ -33,7 +33,7 @@ ALL_PRESETS = {
         MULTI_SPECIES = False,
         NUM_SPECIES   = 1,
 
-        NUM_AGENTS     = 1_000_000,  # Big population
+        NUM_AGENTS     = 2_000_000,  # Big population
         AGENT_SPEED    = 5,
         TURN_SPEED     = 0.2,
         SENSOR_ANGLE_DEG = 30.0,
@@ -44,9 +44,9 @@ ALL_PRESETS = {
         AGENT_DEPOSIT_SCALE= 250_000,  # scales deposit based on total agent count
 
         USE_RANDOM_SEEDS   = True,
-        RANDOM_TURN_FACTOR = 0.01,
+        RANDOM_TURN_FACTOR = 0.1,
 
-        EVAPORATION_FACTOR = 0.92,  # fade slower -> stronger "walls"
+        EVAPORATION_FACTOR = 0.90,  # fade slower -> stronger "walls"
         BLUR_RADIUS        = 1,     # bigger blur => bubble walls
         BLUR_PASSES        = 1,     # 2 passes each frame
 
@@ -54,7 +54,7 @@ ALL_PRESETS = {
         OBSTACLE_IMAGE= "obstacles.png",
 
         COLOR_MODE       = "SUM",   # sum channels => white
-        COLOR_MULTIPLIER = 60.0,    # fairly high brightness
+        COLOR_MULTIPLIER = 40.0,    # fairly high brightness
         BACKGROUND_COLOR = (0.0, 0.0, 0.0, 1.0),
         TARGET_FPS       = 60,
 
@@ -190,40 +190,41 @@ ALL_PRESETS = {
     #   - fewer agents, very low deposit => faint lines
     #---------------------------------------------------------
     5: dict(
-        WINDOW_WIDTH   = 1280,
-        WINDOW_HEIGHT  = 720,
-        SIM_WIDTH      = 1024,
-        SIM_HEIGHT     = 1024,
+        WINDOW_WIDTH=1280,
+        WINDOW_HEIGHT=720,
+        SIM_WIDTH=1024,
+        SIM_HEIGHT=1024,
 
-        MULTI_SPECIES  = False,
-        NUM_SPECIES    = 1,
+        MULTI_SPECIES=False,
+        NUM_SPECIES=1,
 
-        NUM_AGENTS       = 50_000,
-        AGENT_SPEED      = 0.3,
-        TURN_SPEED       = 0.25,
-        SENSOR_ANGLE_DEG = 28.0,
-        SENSOR_DISTANCE  = 6.0,
+        NUM_AGENTS=1_000_000,
+        AGENT_SPEED=20,
+        TURN_SPEED=0.3,
+        SENSOR_ANGLE_DEG=30.0,
+        SENSOR_DISTANCE=100.0,
 
-        DEPOSIT_AMOUNT      = 0.02,
-        AGENT_DEPOSIT_SCALE = 50_000,
+        DEPOSIT_AMOUNT=0.008,
+        AGENT_DEPOSIT_SCALE=1_000_000,
 
-        USE_RANDOM_SEEDS   = True,
-        RANDOM_TURN_FACTOR = 0.02,
+        USE_RANDOM_SEEDS=True,
+        RANDOM_TURN_FACTOR=0.03,  # more wiggle => wavy lines
 
-        EVAPORATION_FACTOR = 0.94,
-        BLUR_RADIUS        = 1,
-        BLUR_PASSES        = 1,
+        EVAPORATION_FACTOR=0.97,
+        BLUR_RADIUS=1,
+        BLUR_PASSES=1,
 
-        USE_OBSTACLES = False,
-        OBSTACLE_IMAGE= "obstacles.png",
+        USE_OBSTACLES=False,
+        OBSTACLE_IMAGE="obstacles.png",
 
-        COLOR_MODE       = "SUM",
-        COLOR_MULTIPLIER = 40.0,
-        BACKGROUND_COLOR = (0.0, 0.0, 0.0, 1.0),
-        TARGET_FPS       = 60,
+        # We'll do "CUSTOM" for a bluish highlight
+        COLOR_MODE="B",
+        COLOR_MULTIPLIER=10.0,
+        BACKGROUND_COLOR=(0.0, 0.0, 0.0, 1.0),
+        TARGET_FPS=60,
 
-        SCREENSHOT_KEY  = ord('F'),
-        SCREENSHOT_FILE = "preset5_screenshot.png"
+        SCREENSHOT_KEY=ord('F'),
+        SCREENSHOT_FILE="preset4_screenshot.png"
     ),
 
     #---------------------------------------------------------
