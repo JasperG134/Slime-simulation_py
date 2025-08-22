@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Mijn rooster (compact)</title>
+  <style>
+    :root{
+      --bg:#0f172a;           /* slate-900 */
+      --panel:#111827;        /* gray-900 */
+      --card:#1f2937;         /* gray-800 */
+      --line:#334155;         /* slate-700 */
+      --accent:#3b82f6;       /* blue-500 */
+      --text:#e5e7eb;         /* gray-200 */
+      --muted:#9ca3af;        /* gray-400 */
+      --warn:#f59e0b;         /* amber-500 */
+      --px-per-min: 1.0;      /* schaal: 1px per minuut */
+      --col-w: 140px;         /* breedte per dagkolom */
+      --time-w: 56px;         /* breedte tijd-as links */
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font: 14px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 10% 0%, #0b1224 0%, #0a0f1c 40%, #090f1a 80%);
+    }
+    .wrap {
+      max-width: calc(var(--time-w) + 5*var(--col-w) + 24px);
+      margin: 16px auto;
+      padding: 12px;
+      background: rgba(17,24,39,.6);
+      backdrop-filter: blur(6px);
+      border: 1px solid #1f2937;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    header{
+      display:flex; align-items:center; justify-content:space-between;
+      padding: 6px 8px 10px 8px;
+      border-bottom: 1px solid var(--line);
+    }
+    .title{
+      font-weight:600; letter-spacing:.2px;
+    }
+    .user {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .nav button{
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 6px;
+    }
+    .nav button:hover{ border-color: var(--accent); }
+
+    .grid {
+      position: relative;
+      display: grid;
+      grid-template-columns: var(--time-w) repeat(5, var(--col-w));
+      gap: 6px;
+      padding: 10px 6px 14px 6px;
+    }
+    .time-axis {
+      position: relative;
+    }
+    .time-label {
+      position: absolute;
+      right: 6px;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .day {
+      position: relative;
+      background: linear-gradient(180deg, rgba(31,41,55,.5), rgba(17,24,39,.35));
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      min-height: calc(var(--px-per-min) * 540px); /* 09:00 → 18:00 basis; wordt dynamisch bijgesteld */
+    }
+    .day .col-header{
+      position: sticky; top: 0; z-index: 3;
+      background: rgba(17,24,39,.85);
+      font-weight: 600;
+      text-align: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .hline{
+      position: absolute; left: 0; right: 0; height: 1px;
+      background: rgba(51,65,85,.55);
+    }
+    .slot{
+      position: absolute;
+      left: 6px; right: 6px;
+      border-radius: 10px;
+      border: 1px solid #1f3a66;
+      background: linear-gradient(180deg, rgba(59,130,246,.25), rgba(59,130,246,.18));
+      box-shadow: 0 4px 18px rgba(2, 8, 20, .3), inset 0 1px 0 rgba(255,255,255,.06);
+      padding: 8px 10px;
+      overflow: hidden;
+    }
+    .slot .subj{ font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
+    .slot .meta{ color: var(--muted); font-size: 12px; margin-top: 2px; }
+    .legend{
+      color: var(--muted); font-size: 12px; padding: 6px 8px 0 8px;
+    }
+    .notice { color: var(--warn); }
+    .footer{
+      margin-top: 8px; color: var(--muted); font-size: 12px; text-align: right; padding: 0 8px 2px;
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <div class="title">Mijn rooster (weekweergave)</div>
+      <div class="user" id="userLine">Laden…</div>
+    </div>
+    <div class="nav">
+      <button id="prevBtn">◀ Vorige week</button>
+      <button id="todayBtn">Vandaag</button>
+      <button id="nextBtn">Volgende week ▶</button>
+    </div>
+  </header>
+
+  <div class="legend" id="legendLine">—</div>
+  <div class="grid" id="grid"></div>
+  <div class="footer">Powered by Zermelo API · lokaal gerenderd</div>
+</div>
+
+<script>
+(function(){
+  const gridEl = document.getElementById('grid');
+  const userLine = document.getElementById('userLine');
+  const legendLine = document.getElementById('legendLine');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const todayBtn = document.getElementById('todayBtn');
+
+  let anchorDate = new Date(); // bepaalt welke week we tonen
+
+  function isoDate(d){
+    return d.toISOString().slice(0,10);
+  }
+  function mondayOfWeek(d){
+    const tmp = new Date(d);
+    const day = (tmp.getDay() + 6) % 7; // 0=ma
+    tmp.setDate(tmp.getDate() - day);
+    tmp.setHours(0,0,0,0);
+    return tmp;
+  }
+  function sundayOfWeek(d){
+    const m = mondayOfWeek(d);
+    const s = new Date(m); s.setDate(s.getDate()+6); s.setHours(23,59,0,0);
+    return s;
+  }
+  function minutesSince(dayStart, d){
+    return (d - dayStart) / 60000;
+  }
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function hm(d){ return pad(d.getHours())+':'+pad(d.getMinutes()); }
+
+  function timeGrid(dayHeightPx, minMinute, maxMinute){
+    const axis = document.createElement('div');
+    axis.className = 'time-axis';
+    axis.style.height = dayHeightPx + 'px';
+    const ticks = [];
+    for(let m=minMinute; m<=maxMinute; m+=50){ // 50-minuten raster zoals veel roosters
+      const y = (m - minMinute);
+      ticks.push({m, y});
+    }
+    ticks.forEach(t=>{
+      const lab = document.createElement('div');
+      lab.className='time-label';
+      const hh = Math.floor(t.m/60), mm = t.m%60;
+      lab.textContent = pad(hh)+':'+pad(mm);
+      lab.style.top = t.y+'px';
+      axis.appendChild(lab);
+    });
+    return axis;
+  }
+
+  function dayColumn(title, heightPx){
+    const d = document.createElement('div');
+    d.className = 'day';
+    d.style.minHeight = heightPx + 'px';
+    const head = document.createElement('div');
+    head.className = 'col-header';
+    head.textContent = title;
+    d.appendChild(head);
+    return d;
+  }
+
+  function slotEl(item, dayStartMin, minMinute){
+    const s = document.createElement('div');
+    s.className='slot';
+    const start = new Date(item.start);
+    const end = new Date(item.end);
+    const startMin = start.getHours()*60 + start.getMinutes();
+    const endMin = end.getHours()*60 + end.getMinutes();
+    const top = (startMin - minMinute);
+    const h = Math.max(22, (endMin - startMin)); // min-height
+    s.style.top = top+'px';
+    s.style.height = h+'px';
+
+    const subj = document.createElement('div');
+    subj.className = 'subj';
+    subj.textContent = item.subject || '-';
+
+    const meta = document.createElement('div');
+    meta.className = 'meta';
+    const loc = item.location ? ` • lokaal ${item.location}` : '';
+    const teach = item.teachers ? ` • ${item.teachers}` : '';
+    meta.textContent = `${hm(start)}–${hm(end)}${loc}${teach}`;
+
+    s.appendChild(subj);
+    s.appendChild(meta);
+    return s;
+  }
+
+  function renderWeek(data){
+    const days = data.days || [];
+    // Bepaal tijdvenster: standaard 08:00–16:30, maar verruim als nodig
+    let minMinute = 8*60, maxMinute = 16*60+30;
+    days.forEach(day=>{
+      (day.items||[]).forEach(it=>{
+        const s = new Date(it.start), e = new Date(it.end);
+        const sm = s.getHours()*60 + s.getMinutes();
+        const em = e.getHours()*60 + e.getMinutes();
+        if (sm < minMinute) minMinute = sm;
+        if (em > maxMinute) maxMinute = em;
+      });
+    });
+    const height = Math.max(480, (maxMinute - minMinute)); // px-per-min = 1
+
+    // Reset grid en opbouwen: tijd-as + 5 dagkolommen (ma–vr)
+    gridEl.innerHTML = '';
+    const axis = timeGrid(height, minMinute, maxMinute);
+    gridEl.appendChild(axis);
+
+    const labels = ['Ma','Di','Wo','Do','Vr','Za','Zo'];
+    for (let i=0;i<5;i++){
+      const day = days[i] || {date:null, items:[]};
+      const dateLabel = day.date ? new Date(day.date+'T00:00').toLocaleDateString('nl-NL', {day:'2-digit', month:'2-digit'}) : '';
+      const col = dayColumn(`${labels[i]} ${dateLabel}`, height);
+
+      // horizontale hulplijnen per 50 minuten
+      for(let m=minMinute; m<=maxMinute; m+=50){
+        const hl = document.createElement('div');
+        hl.className='hline';
+        hl.style.top = (m - minMinute) + 'px';
+        col.appendChild(hl);
+      }
+      (day.items||[]).forEach(it=>{
+        const se = slotEl(it, minMinute, minMinute);
+        col.appendChild(se);
+      });
+      gridEl.appendChild(col);
+    }
+
+    const mon = data.range?.monday || '';
+    const sun = data.range?.sunday || '';
+    legendLine.textContent = `Week ${data.week} — van ${mon} t/m ${sun}`;
+    userLine.textContent = `${data.user?.name || ''} (code ${data.user?.code || ''})`;
+  }
+
+  async function loadWeek(anchor){
+    const d = new Date(anchor);
+    const iso = isoDate(d);
+    const r = await fetch(`/api/week?date=${iso}`);
+    const j = await r.json();
+    if (!j.ok){
+      gridEl.innerHTML = `<div class="notice">Fout: ${j.error || 'onbekend'}</div>`;
+      return;
+    }
+    renderWeek(j);
+  }
+
+  prevBtn.addEventListener('click', ()=>{
+    anchorDate.setDate(anchorDate.getDate()-7);
+    loadWeek(anchorDate);
+  });
+  nextBtn.addEventListener('click', ()=>{
+    anchorDate.setDate(anchorDate.getDate()+7);
+    loadWeek(anchorDate);
+  });
+  todayBtn.addEventListener('click', ()=>{
+    anchorDate = new Date();
+    loadWeek(anchorDate);
+  });
+
+  // init
+  loadWeek(anchorDate);
+})();
+</script>
+</body>
+</html>
