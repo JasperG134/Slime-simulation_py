@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Account beheer - Zermelo</title>
+  <style>
+    :root{
+      --bg:#0f172a;           
+      --panel:#111827;        
+      --card:#1f2937;         
+      --line:#334155;         
+      --accent:#3b82f6;       
+      --text:#e5e7eb;         
+      --muted:#9ca3af;        
+      --warn:#f59e0b;         
+      --success:#10b981;      
+      --danger:#ef4444;       
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body {
+      font: 14px system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      color: var(--text);
+      background: radial-gradient(1200px 800px at 10% 0%, #0b1224 0%, #0a0f1c 40%, #090f1a 80%);
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: rgba(17,24,39,.6);
+      backdrop-filter: blur(6px);
+      border: 1px solid #1f2937;
+      border-radius: 14px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+      overflow: hidden;
+    }
+    .header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .back-btn {
+      background: var(--card);
+      border: 1px solid var(--line);
+      color: var(--text);
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      font-size: 14px;
+    }
+    .back-btn:hover { border-color: var(--accent); }
+    .content {
+      padding: 24px;
+    }
+    .section {
+      margin-bottom: 32px;
+    }
+    .section h3 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .account-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .account-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .account-info {
+      flex: 1;
+    }
+    .account-name {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .account-id {
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .account-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-left: 12px;
+    }
+    .status-active {
+      background: rgba(16, 185, 129, 0.2);
+      color: var(--success);
+    }
+    .status-expired {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--danger);
+    }
+    .account-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .btn {
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #2563eb;
+      border-color: #2563eb;
+    }
+    .add-account {
+      background: var(--card);
+      border: 1px dashed var(--line);
+      border-radius: 10px;
+      padding: 20px;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 14px;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    .current-indicator {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: var(--accent);
+    }
+    .message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .message-success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--success);
+    }
+    .message-error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--danger);
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <div class="title">Account beheer</div>
+    <a href="/" class="back-btn">← Terug naar rooster</a>
+  </div>
+
+  <div class="content">
+    <div id="message"></div>
+
+    <div class="section">
+      <h3>Gekoppelde accounts</h3>
+      <div id="accountList" class="account-list">
+        <div style="text-align: center; color: var(--muted); padding: 20px;">
+          Accounts laden...
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h3>Nieuw account koppelen</h3>
+      <div class="add-account">
+        <div class="form-group">
+          <label for="authCode">Koppelcode</label>
+          <input 
+            type="text" 
+            id="authCode" 
+            placeholder="Voer je Zermelo koppelcode in..."
+            maxlength="50"
+          />
+        </div>
+        <button id="addAccountBtn" class="btn btn-primary">Account koppelen</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const accountList = document.getElementById('accountList');
+  const messageEl = document.getElementById('message');
+  const authCodeInput = document.getElementById('authCode');
+  const addAccountBtn = document.getElementById('addAccountBtn');
+
+  function showMessage(text, type = 'success') {
+    messageEl.innerHTML = `<div class="message message-${type}">${text}</div>`;
+    setTimeout(() => {
+      messageEl.innerHTML = '';
+    }, 5000);
+  }
+
+  function formatDate(timestamp) {
+    if (!timestamp) return 'Onbekend';
+    return new Date(timestamp * 1000).toLocaleDateString('nl-NL', {
+      day: '2-digit',
+      month: '2-digit', 
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  }
+
+  async function loadAccounts() {
+    try {
+      const response = await fetch('/api/accounts');
+      const data = await response.json();
+
+      if (!data.ok) {
+        throw new Error(data.error || 'Fout bij laden accounts');
+      }
+
+      renderAccounts(data.accounts, data.current_user);
+    } catch (error) {
+      accountList.innerHTML = `
+        <div style="text-align: center; color: var(--danger); padding: 20px;">
+          Fout bij laden: ${error.message}
+        </div>
+      `;
+    }
+  }
+
+  function renderAccounts(accounts, currentUser) {
+    if (Object.keys(accounts).length === 0) {
+      accountList.innerHTML = `
+        <div style="text-align: center; color: var(--muted); padding: 20px;">
+          Nog geen accounts gekoppeld
+        </div>
+      `;
+      return;
+    }
+
+    accountList.innerHTML = '';
+
+    Object.values(accounts).forEach(account => {
+      const card = document.createElement('div');
+      card.className = `account-card ${account.user_id === currentUser ? 'current-indicator' : ''}`;
+
+      card.innerHTML = `
+        <div class="account-info">
+          <div class="account-name">
+            ${account.user_name}
+            ${account.user_id === currentUser ? ' (Actief)' : ''}
+          </div>
+          <div class="account-id">ID: ${account.user_id} • Gekoppeld: ${formatDate(account.obtained_at)}</div>
+        </div>
+        <div class="account-status ${account.is_expired ? 'status-expired' : 'status-active'}">
+          ${account.is_expired ? 'Verlopen' : 'Actief'}
+        </div>
+        <div class="account-actions">
+          ${account.user_id !== currentUser ? 
+            `<button class="btn btn-primary" onclick="switchAccount('${account.user_id}')">Activeren</button>` : ''
+          }
+        </div>
+      `;
+
+      accountList.appendChild(card);
+    });
+  }
+
+  window.switchAccount = async function(userId) {
+    try {
+      const response = await fetch('/api/switch-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ user_id: userId })
+      });
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        throw new Error(data.error || 'Fout bij switchen account');
+      }
+
+      showMessage('Account succesvol gewijzigd!');
+      loadAccounts();
+    } catch (error) {
+      showMessage(error.message, 'error');
+    }
+  };
+
+  addAccountBtn.addEventListener('click', async () => {
+    const authCode = authCodeInput.value.trim();
+    if (!authCode) {
+      showMessage('Voer een koppelcode in', 'error');
+      return;
+    }
+
+    addAccountBtn.disabled = true;
+    addAccountBtn.textContent = 'Koppelen...';
+
+    try {
+      const response = await fetch('/api/add-account', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ authorization_code: authCode })
+      });
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        throw new Error(data.error || 'Fout bij koppelen account');
+      }
+
+      showMessage(`Account ${data.user_name} succesvol gekoppeld!`);
+      authCodeInput.value = '';
+      loadAccounts();
+    } catch (error) {
+      showMessage(error.message, 'error');
+    } finally {
+      addAccountBtn.disabled = false;
+      addAccountBtn.textContent = 'Account koppelen';
+    }
+  });
+
+  // Load accounts on page load
+  loadAccounts();
+})();
+</script>
+
+</body>
+</html>

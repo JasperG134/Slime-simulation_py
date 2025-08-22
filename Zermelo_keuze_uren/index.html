@@ -104,6 +104,23 @@
       box-shadow: 0 4px 18px rgba(2, 8, 20, .3), inset 0 1px 0 rgba(255,255,255,.06);
       padding: 8px 10px;
       overflow: hidden;
+      cursor: default;
+    }
+    .slot.choice-hour {
+      border: 1px solid #16a34a;
+      background: linear-gradient(180deg, rgba(34,197,94,.35), rgba(34,197,94,.25));
+      cursor: pointer;
+    }
+    .slot.choice-hour:hover {
+      background: linear-gradient(180deg, rgba(34,197,94,.45), rgba(34,197,94,.35));
+    }
+    .slot.choice-hour.available {
+      border: 2px solid #22c55e;
+      animation: pulse-choice 2s infinite;
+    }
+    @keyframes pulse-choice {
+      0%, 100% { box-shadow: 0 4px 18px rgba(2, 8, 20, .3), 0 0 0 0 rgba(34,197,94,.7); }
+      50% { box-shadow: 0 4px 18px rgba(2, 8, 20, .3), 0 0 0 4px rgba(34,197,94,.3); }
     }
     .slot .subj{ font-weight: 700; text-transform: uppercase; letter-spacing: .4px; }
     .slot .meta{ color: var(--muted); font-size: 12px; margin-top: 2px; }
@@ -113,6 +130,132 @@
     .notice { color: var(--warn); }
     .footer{
       margin-top: 8px; color: var(--muted); font-size: 12px; text-align: right; padding: 0 8px 2px;
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.7);
+      backdrop-filter: blur(4px);
+    }
+    .modal-content {
+      background: var(--panel);
+      margin: 5% auto;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.5);
+      overflow: hidden;
+    }
+    .modal-header {
+      padding: 20px 24px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-header h3 {
+      margin: 0;
+      color: var(--text);
+      font-size: 18px;
+    }
+    .close {
+      color: var(--muted);
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      line-height: 1;
+    }
+    .close:hover {
+      color: var(--text);
+    }
+    .modal-body {
+      padding: 20px 24px;
+    }
+    .modal-footer {
+      padding: 16px 24px 20px;
+      border-top: 1px solid var(--line);
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--card);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn:hover {
+      border-color: var(--accent);
+    }
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: white;
+    }
+    .btn-primary:hover:not(:disabled) {
+      background: #2563eb;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      background: var(--card);
+    }
+    .choice-options {
+      margin-top: 16px;
+    }
+    .choice-option {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .choice-option:hover {
+      border-color: var(--accent);
+      background: rgba(59,130,246,0.1);
+    }
+    .choice-option.selected {
+      border-color: var(--accent);
+      background: rgba(59,130,246,0.15);
+      box-shadow: 0 0 0 1px var(--accent);
+    }
+    .choice-subject {
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .choice-details {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .choice-status {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      margin-top: 8px;
+      display: inline-block;
+    }
+    .status-available {
+      background: rgba(34,197,94,0.2);
+      color: #22c55e;
+    }
+    .status-full {
+      background: rgba(239,68,68,0.2);
+      color: #ef4444;
     }
   </style>
 </head>
@@ -124,6 +267,7 @@
       <div class="user" id="userLine">Laden…</div>
     </div>
     <div class="nav">
+      <button id="switchAccountBtn">👤 Account</button>
       <button id="prevBtn">◀ Vorige week</button>
       <button id="todayBtn">Vandaag</button>
       <button id="nextBtn">Volgende week ▶</button>
@@ -135,6 +279,26 @@
   <div class="footer">Powered by Zermelo API · lokaal gerenderd</div>
 </div>
 
+<!-- Choice Hour Modal -->
+<div id="choiceModal" class="modal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 id="choiceModalTitle">Keuze uur selecteren</h3>
+      <span class="close">&times;</span>
+    </div>
+    <div class="modal-body">
+      <div id="choiceModalTime"></div>
+      <div id="choiceOptions" class="choice-options">
+        <!-- Options will be loaded here -->
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button id="cancelChoice" class="btn btn-secondary">Annuleren</button>
+      <button id="confirmChoice" class="btn btn-primary" disabled>Inschrijven</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   const gridEl = document.getElementById('grid');
@@ -143,6 +307,7 @@
   const prevBtn = document.getElementById('prevBtn');
   const nextBtn = document.getElementById('nextBtn');
   const todayBtn = document.getElementById('todayBtn');
+  const switchAccountBtn = document.getElementById('switchAccountBtn');
 
   let anchorDate = new Date(); // bepaalt welke week we tonen
 
@@ -200,7 +365,17 @@
 
   function slotEl(item, dayStartMin, minMinute){
     const s = document.createElement('div');
-    s.className='slot';
+    s.className = 'slot';
+
+    // Add choice hour styling and click handler
+    if (item.is_choice_hour) {
+      s.classList.add('choice-hour');
+      if (item.choice_status === 'available') {
+        s.classList.add('available');
+        s.addEventListener('click', () => openChoiceModal(item));
+      }
+    }
+
     const start = new Date(item.start);
     const end = new Date(item.end);
     const startMin = start.getHours()*60 + start.getMinutes();
@@ -216,7 +391,7 @@
 
     const meta = document.createElement('div');
     meta.className = 'meta';
-    const loc = item.location ? ` • lokaal ${item.location}` : '';
+    const loc = item.location ? ` • ${item.location}` : '';
     const teach = item.teachers ? ` • ${item.teachers}` : '';
     meta.textContent = `${hm(start)}–${hm(end)}${loc}${teach}`;
 
@@ -226,7 +401,21 @@
   }
 
   function renderWeek(data){
+    console.log('DEBUG: renderWeek data:', data);
     const days = data.days || [];
+
+    // Debug: Count choice hours
+    let choiceCount = 0;
+    days.forEach(day => {
+      (day.items || []).forEach(item => {
+        if (item.is_choice_hour) {
+          choiceCount++;
+          console.log('DEBUG: Found choice hour:', item);
+        }
+      });
+    });
+    console.log(`DEBUG: Found ${choiceCount} choice hours in frontend`);
+
     // Bepaal tijdvenster: standaard 08:00–16:30, maar verruim als nodig
     let minMinute = 8*60, maxMinute = 16*60+30;
     days.forEach(day=>{
@@ -259,6 +448,9 @@
         col.appendChild(hl);
       }
       (day.items||[]).forEach(it=>{
+        if (it.is_choice_hour) {
+          console.log('DEBUG: Creating choice hour slot:', it);
+        }
         const se = slotEl(it, minMinute, minMinute);
         col.appendChild(se);
       });
@@ -294,6 +486,153 @@
   todayBtn.addEventListener('click', ()=>{
     anchorDate = new Date();
     loadWeek(anchorDate);
+  });
+
+  switchAccountBtn.addEventListener('click', ()=>{
+    window.location.href = '/accounts';
+  });
+
+  // Choice Modal functionality
+  const choiceModal = document.getElementById('choiceModal');
+  const choiceModalTitle = document.getElementById('choiceModalTitle');
+  const choiceModalTime = document.getElementById('choiceModalTime');
+  const choiceOptions = document.getElementById('choiceOptions');
+  const confirmChoice = document.getElementById('confirmChoice');
+  const cancelChoice = document.getElementById('cancelChoice');
+  const closeModal = document.querySelector('.close');
+
+  let selectedChoiceId = null;
+  let currentParticipationId = null;
+
+  async function openChoiceModal(item) {
+    currentParticipationId = item.appointment_id;
+    selectedChoiceId = null;
+
+    const start = new Date(item.start);
+    const end = new Date(item.end);
+
+    choiceModalTitle.textContent = 'Keuze uur selecteren';
+    choiceModalTime.textContent = `${hm(start)} - ${hm(end)}`;
+    choiceOptions.innerHTML = '<div style="text-align:center; color: var(--muted);">Opties laden...</div>';
+
+    choiceModal.style.display = 'block';
+    confirmChoice.disabled = true;
+
+    try {
+      const response = await fetch(`/api/choice-options/${item.appointment_id}`);
+      const data = await response.json();
+
+      if (!data.ok) {
+        throw new Error(data.error || 'Fout bij laden opties');
+      }
+
+      renderChoiceOptions(data.options);
+    } catch (error) {
+      choiceOptions.innerHTML = `<div style="color: var(--warn);">Fout: ${error.message}</div>`;
+    }
+  }
+
+  function renderChoiceOptions(options) {
+    if (!options || options.length === 0) {
+      choiceOptions.innerHTML = '<div style="text-align:center; color: var(--muted);">Geen opties beschikbaar</div>';
+      return;
+    }
+
+    choiceOptions.innerHTML = '';
+
+    options.forEach(option => {
+      const optionEl = document.createElement('div');
+      optionEl.className = 'choice-option';
+      optionEl.dataset.choiceId = option.id;
+
+      const isAvailable = !option.full && option.choosable;
+
+      optionEl.innerHTML = `
+        <div class="choice-subject">${option.subject || 'Onbekend vak'}</div>
+        <div class="choice-details">
+          ${option.teacher ? `Docent: ${option.teacher}` : ''}
+          ${option.location ? ` • Lokaal: ${option.location}` : ''}
+        </div>
+        <div class="choice-status ${isAvailable ? 'status-available' : 'status-full'}">
+          ${isAvailable ? `${option.participants || 0}/${option.capacity || '∞'} deelnemers` : 'Vol'}
+        </div>
+      `;
+
+      if (isAvailable) {
+        optionEl.addEventListener('click', () => selectChoice(option.id, optionEl));
+      } else {
+        optionEl.style.opacity = '0.5';
+        optionEl.style.cursor = 'not-allowed';
+      }
+
+      choiceOptions.appendChild(optionEl);
+    });
+  }
+
+  function selectChoice(choiceId, element) {
+    // Remove previous selection
+    document.querySelectorAll('.choice-option.selected').forEach(el => {
+      el.classList.remove('selected');
+    });
+
+    // Add selection to clicked element
+    element.classList.add('selected');
+    selectedChoiceId = choiceId;
+    confirmChoice.disabled = false;
+  }
+
+  async function makeChoice() {
+    if (!selectedChoiceId || !currentParticipationId) return;
+
+    confirmChoice.disabled = true;
+    confirmChoice.textContent = 'Inschrijven...';
+
+    try {
+      const response = await fetch('/api/make-choice', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          appointment_id: currentParticipationId,
+          choice_id: selectedChoiceId
+        })
+      });
+
+      const data = await response.json();
+
+      if (!data.ok) {
+        throw new Error(data.error || 'Fout bij maken keuze');
+      }
+
+      // Close modal and refresh week
+      closeChoiceModal();
+      loadWeek(anchorDate);
+
+    } catch (error) {
+      alert('Fout bij inschrijven: ' + error.message);
+      confirmChoice.disabled = false;
+      confirmChoice.textContent = 'Inschrijven';
+    }
+  }
+
+  function closeChoiceModal() {
+    choiceModal.style.display = 'none';
+    selectedChoiceId = null;
+    currentParticipationId = null;
+    confirmChoice.textContent = 'Inschrijven';
+  }
+
+  // Modal event listeners
+  confirmChoice.addEventListener('click', makeChoice);
+  cancelChoice.addEventListener('click', closeChoiceModal);
+  closeModal.addEventListener('click', closeChoiceModal);
+
+  // Close modal when clicking outside
+  window.addEventListener('click', (event) => {
+    if (event.target === choiceModal) {
+      closeChoiceModal();
+    }
   });
 
   // init
